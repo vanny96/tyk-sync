@@ -1,7 +1,11 @@
 package dashboard
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 
 	"encoding/json"
 
@@ -47,25 +51,34 @@ func (c *Client) GetActiveID(def *objects.DBApiDefinition) string {
 func (c *Client) CreateAPI(def *objects.DBApiDefinition) (string, error) {
 	fullPath := urljoin.Join(c.url, endpointAPIs)
 
-	ro := &grequests.RequestOptions{
-		Params: map[string]string{"p": "-2"},
-		Headers: map[string]string{
-			"Authorization": c.secret,
-		},
-		InsecureSkipVerify: c.InsecureSkipVerify,
-	}
-
-	resp, err := grequests.Get(fullPath, ro)
+	request, err := http.NewRequest(http.MethodGet, fullPath, nil)
 	if err != nil {
 		return "", err
 	}
 
+	q := request.URL.Query()
+	q.Add("p", "-2")
+	headers := http.Header{}
+	headers.Add("Authorization", c.secret)
+	request.Header = headers
+
+	resp, err := c.HTTPClient.Do(request)
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if resp.StatusCode != 200 {
-		return "", fmt.Errorf("API Returned error: %v for %v", resp.String(), fullPath)
+		return "", fmt.Errorf("API Returned error: %v for %v", resp.StatusCode, fullPath)
 	}
 
 	apis := APISResponse{}
-	if err := resp.JSON(&apis); err != nil {
+	if err := json.Unmarshal(responseBody, &apis); err != nil {
 		return "", err
 	}
 
@@ -109,24 +122,31 @@ func (c *Client) CreateAPI(def *objects.DBApiDefinition) (string, error) {
 		return "", err
 	}
 
-	createResp, err := grequests.Post(fullPath, &grequests.RequestOptions{
-		JSON: data,
-		Headers: map[string]string{
-			"Authorization": c.secret,
-		},
-		InsecureSkipVerify: c.InsecureSkipVerify,
-	})
+	createReq, err := http.NewRequest(http.MethodPost, fullPath, bytes.NewBuffer(data))
+	if err != nil {
+		return "", err
+	}
+	q = createReq.URL.Query()
+	q.Add("p", "-2")
+	createReq.Header = headers
 
+	createResp, err := c.HTTPClient.Do(createReq)
 	if err != nil {
 		return "", err
 	}
 
 	if createResp.StatusCode != 200 {
-		return "", fmt.Errorf("API Returned error: %v (code: %v)", createResp.String(), createResp.StatusCode)
+		return "", fmt.Errorf("API Returned error: %v (code: %v)", createResp.StatusCode, createResp.StatusCode)
+	}
+	defer createResp.Body.Close()
+
+	craeteRespBody, err := ioutil.ReadAll(createResp.Body)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	var status APIResponse
-	if err := createResp.JSON(&status); err != nil {
+	if err := json.Unmarshal(craeteRespBody, &status); err != nil {
 		return "", err
 	}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/TykTechnologies/tyk-sync/clients/http_client"
 	"github.com/TykTechnologies/tyk-sync/clients/objects"
 	"github.com/levigross/grequests"
 	"github.com/ongoingio/urljoin"
@@ -16,6 +17,8 @@ type Client struct {
 	isCloud            bool
 	InsecureSkipVerify bool
 	OrgID              string
+
+	HTTPClient http_client.HTTPClient
 }
 
 const (
@@ -39,6 +42,14 @@ func NewDashboardClient(url, secret, orgID string) (*Client, error) {
 		isCloud: strings.Contains(url, "tyk.io"),
 	}
 
+	return client, nil
+}
+
+func (c *Client) SetHTTPClient(client http_client.HTTPClient) {
+	c.HTTPClient = client
+}
+
+func (client *Client) CheckDashUser(url, secret, orgID string) error {
 	if orgID == "" {
 		fullPath := urljoin.Join(url, endpointUsers)
 
@@ -51,22 +62,21 @@ func NewDashboardClient(url, secret, orgID string) (*Client, error) {
 
 		resp, err := grequests.Get(fullPath, ro)
 		if err != nil {
-			return client, err
+			return err
 		}
 
 		if resp.StatusCode != 200 {
-			return client, fmt.Errorf("Error getting users from dashboard: %v for %v", resp.String(), fullPath)
+			return fmt.Errorf("error getting users from dashboard: %v for %v", resp.String(), fullPath)
 		}
 
 		users := objects.UsersResponse{}
 		if err := resp.JSON(&users); err != nil {
-			return client, err
+			return err
 		}
 
 		if len(users.Users) > 0 {
 			client.OrgID = users.Users[0].OrgID
 		}
 	}
-
-	return client, nil
+	return nil
 }

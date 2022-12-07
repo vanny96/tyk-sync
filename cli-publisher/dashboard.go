@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/TykTechnologies/tyk-sync/clients/dashboard"
+	"github.com/TykTechnologies/tyk-sync/clients/http_client"
 	"github.com/TykTechnologies/tyk-sync/clients/objects"
 )
 
@@ -36,6 +37,11 @@ func (p *DashboardPublisher) Create(apiDef *objects.DBApiDefinition) (string, er
 	if err != nil {
 		return "", err
 	}
+	c.SetHTTPClient(http_client.NewClient(false))
+	if err := c.CheckDashUser(p.Hostname, p.Secret, p.OrgOverride); err != nil {
+		return "", err
+	}
+
 	if p.OrgOverride == "" {
 		p.OrgOverride = c.OrgID
 	}
@@ -46,6 +52,10 @@ func (p *DashboardPublisher) Create(apiDef *objects.DBApiDefinition) (string, er
 func (p *DashboardPublisher) Update(apiDef *objects.DBApiDefinition) error {
 	c, err := dashboard.NewDashboardClient(p.Hostname, p.Secret, p.OrgOverride)
 	if err != nil {
+		return err
+	}
+	c.SetHTTPClient(http_client.NewClient(false))
+	if err := c.CheckDashUser(p.Hostname, p.Secret, p.OrgOverride); err != nil {
 		return err
 	}
 	if p.OrgOverride == "" {
@@ -60,7 +70,10 @@ func (p *DashboardPublisher) Sync(apiDefs []objects.DBApiDefinition) error {
 	if err != nil {
 		return err
 	}
-
+	c.SetHTTPClient(http_client.NewClient(false))
+	if err := c.CheckDashUser(p.Hostname, p.Secret, p.OrgOverride); err != nil {
+		return err
+	}
 	if p.OrgOverride == "" {
 		p.OrgOverride = c.OrgID
 	}
@@ -93,6 +106,11 @@ func (p *DashboardPublisher) CreatePolicy(pol *objects.Policy) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	c.SetHTTPClient(http_client.NewClient(false))
+	if err := c.CheckDashUser(p.Hostname, p.Secret, p.OrgOverride); err != nil {
+		return "", err
+	}
+
 	if p.OrgOverride == "" {
 		p.OrgOverride = c.OrgID
 	}
@@ -104,6 +122,11 @@ func (p *DashboardPublisher) UpdatePolicy(pol *objects.Policy) error {
 	if err != nil {
 		return err
 	}
+	c.SetHTTPClient(http_client.NewClient(false))
+	if err := c.CheckDashUser(p.Hostname, p.Secret, p.OrgOverride); err != nil {
+		return err
+	}
+
 	if p.OrgOverride == "" {
 		p.OrgOverride = c.OrgID
 	}
@@ -115,6 +138,11 @@ func (p *DashboardPublisher) SyncPolicies(pols []objects.Policy) error {
 	if err != nil {
 		return err
 	}
+	c.SetHTTPClient(http_client.NewClient(false))
+	if err := c.CheckDashUser(p.Hostname, p.Secret, p.OrgOverride); err != nil {
+		return err
+	}
+
 	if p.OrgOverride == "" {
 		p.OrgOverride = c.OrgID
 	}

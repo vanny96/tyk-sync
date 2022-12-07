@@ -7,6 +7,7 @@ require (
 	github.com/TykTechnologies/logrus v0.0.0-20161201171239-55ff0f4b9b3d // indirect
 	github.com/TykTechnologies/logrus-prefixed-formatter v0.0.0-20161201171121-85209afb73a6 // indirect
 	github.com/TykTechnologies/tyk v1.9.2-0.20221104074735-0a415e97ce67
+	github.com/fatih/structs v1.1.0
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/jensneuse/graphql-go-tools v1.20.2
@@ -19,7 +20,9 @@ require (
 	github.com/shurcooL/httpfs v0.0.0-20171119174359-809beceb2371 // indirect
 	github.com/shurcooL/vfsgen v0.0.0-20180121065927-ffb13db8def0 // indirect
 	github.com/spf13/cobra v1.0.0
+	github.com/stretchr/testify v1.7.1
 	github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e // indirect
+	golang.org/x/tools v0.1.12
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/src-d/go-billy.v4 v4.3.2
 	gopkg.in/src-d/go-git.v4 v4.13.1
