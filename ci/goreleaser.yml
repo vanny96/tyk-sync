@@ -44,7 +44,6 @@ dockers:
   goarch: amd64
   goos: linux
   dockerfile: ci/Dockerfile.std
-  skip_push: true
   extra_files:
     - "README.md"
 
