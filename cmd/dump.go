@@ -237,6 +237,8 @@ It will also generate an index file .tyk.json that can be used for sync, update,
 		apiFiles := make([]string, len(apis))
 
 		for i, api := range apis {
+			api.OAS = nil
+
 			j, jerr := json.MarshalIndent(api, "", "  ")
 			if jerr != nil {
 				fmt.Printf("JSON Encoding error: %v\n", jerr.Error())
@@ -435,7 +437,7 @@ func extractOASApis(apis []objects.DBApiDefinition) (classic, oas []objects.DBAp
 	oas = []objects.DBApiDefinition{}
 
 	for i := 0; i < len(apis); i++ {
-		if apis[i].IsOASAPI() {
+		if apis[i].APIDefinition != nil && apis[i].APIDefinition.IsOAS {
 			oas = append(oas, apis[i])
 		} else {
 			classic = append(classic, apis[i])
